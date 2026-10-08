@@ -1,7 +1,9 @@
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
-export default defineConfig({
+// GitHub Pages serves the site at /quill/.
+export default defineConfig(({ command }) => ({
+  base: command === 'build' ? '/quill/' : '/',
   plugins: [
     VitePWA({
       registerType: 'autoUpdate',
@@ -31,4 +33,4 @@ export default defineConfig({
   test: {
     environment: 'node',
   },
-})
+}))
