@@ -1,0 +1,253 @@
+:root {
+  --paper: #f1e5c9;
+  --ink: #3b2a1a;
+  --ink-soft: rgba(59, 42, 26, 0.55);
+  --ink-faint: rgba(59, 42, 26, 0.3);
+  --font: 'Dancing Script', cursive;
+  --scale: 1;
+  --ui: 'IM Fell English', Georgia, serif;
+  /* Fine paper grain, then slow mottling, then darker edges like an old sheet. */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .3 0 0 0 0 .14 0 0 0 .1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --mottle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='900'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.004' numOctaves='4' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 .55 0 0 0 0 .38 0 0 0 0 .16 0 0 0 .22 -.06'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23m)'/%3E%3C/svg%3E");
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  color: var(--ink);
+  background-color: var(--paper);
+  background-image:
+    radial-gradient(ellipse at 50% 45%, transparent 55%, rgba(110, 70, 25, 0.22) 100%),
+    var(--mottle),
+    var(--grain);
+  background-size:
+    100% 100%,
+    900px 900px,
+    220px 220px;
+  background-attachment: fixed;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.poem {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  /* Room above, at the sides, and a long tail so the line being written can
+     sit well above the keyboard. */
+  padding: max(12vh, calc(env(safe-area-inset-top) + 56px)) max(8vw, 22px) 45vh;
+  border: 0;
+  outline: 0;
+  resize: none;
+  background: transparent;
+  color: var(--ink);
+  caret-color: var(--ink);
+  font-family: var(--font);
+  font-size: calc(22px * var(--scale));
+  line-height: 1.65;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  tab-size: 4;
+  scrollbar-width: none;
+}
+
+.poem::-webkit-scrollbar {
+  display: none;
+}
+
+.poem::placeholder {
+  color: var(--ink-faint);
+}
+
+::selection {
+  background: rgba(150, 95, 30, 0.25);
+}
+
+/* The only thing on the page besides the poem: a faint mark that opens the
+   menu. It fades away while you write. */
+.seal {
+  position: fixed;
+  top: calc(env(safe-area-inset-top) + 8px);
+  right: calc(env(safe-area-inset-right) + 8px);
+  width: 48px;
+  height: 48px;
+  border: 0;
+  background: none;
+  color: var(--ink-faint);
+  font: 26px/1 var(--ui);
+  transition: opacity 0.9s ease;
+}
+
+.writing .seal {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.menu {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(40, 28, 16, 0.18);
+  animation: fade 0.25s ease;
+}
+
+.menu[hidden] {
+  display: none;
+}
+
+.sheet {
+  width: min(100%, 520px);
+  max-height: 82vh;
+  overflow-y: auto;
+  padding: 22px 24px calc(env(safe-area-inset-bottom) + 24px);
+  border-radius: 18px 18px 0 0;
+  background-color: var(--paper);
+  background-image: var(--grain);
+  box-shadow: 0 -8px 30px rgba(60, 40, 15, 0.25);
+  font-family: var(--ui);
+  color: var(--ink);
+  animation: rise 0.3s ease;
+}
+
+.sheet h2 {
+  margin: 20px 0 8px;
+  font-size: 13px;
+  font-weight: normal;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.sheet button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+}
+
+.actions button,
+.poems button.open {
+  min-height: 44px;
+  text-align: left;
+  font-size: 19px;
+}
+
+.poems {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.poems li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid rgba(59, 42, 26, 0.12);
+}
+
+.poems li.current .open {
+  font-style: italic;
+}
+
+.poems .open {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.poems .when {
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+.poems .remove {
+  width: 40px;
+  height: 44px;
+  color: var(--ink-faint);
+  font-size: 20px;
+}
+
+.poems .empty {
+  padding: 10px 0;
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chips button {
+  min-height: 44px;
+  padding: 4px 14px;
+  border-radius: 22px;
+  border: 1px solid rgba(59, 42, 26, 0.2);
+  font-size: 20px;
+}
+
+.chips button[aria-pressed='true'] {
+  border-color: var(--ink);
+  background: rgba(59, 42, 26, 0.08);
+}
+
+.note {
+  position: fixed;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom) + 28px);
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  border-radius: 18px;
+  background: rgba(59, 42, 26, 0.85);
+  color: var(--paper);
+  font: 15px var(--ui);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.note.show {
+  opacity: 1;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes rise {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

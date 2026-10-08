@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content"
+    />
+    <meta name="theme-color" content="#f1e5c9" />
+    <meta name="description" content="A quiet page for writing poems." />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <title>Quill</title>
+  </head>
+  <body>
+    <textarea
+      id="poem"
+      class="poem"
+      aria-label="Poem"
+      placeholder="…"
+      spellcheck="false"
+      autocapitalize="sentences"
+    ></textarea>
+
+    <button id="seal" class="seal" type="button" aria-label="Menu" aria-controls="menu">❦</button>
+
+    <div id="menu" class="menu" hidden>
+      <div class="sheet" role="dialog" aria-modal="true" aria-label="Menu">
+        <div class="actions">
+          <button type="button" data-action="new">New poem</button>
+          <button type="button" data-action="share">Send to Proton Drive</button>
+          <button type="button" data-action="docx">Save as .docx</button>
+        </div>
+
+        <h2>Poems</h2>
+        <ul id="poems" class="poems"></ul>
+
+        <h2>Script</h2>
+        <div id="scripts" class="chips"></div>
+
+        <h2>Size</h2>
+        <div id="sizes" class="chips"></div>
+      </div>
+    </div>
+
+    <div id="note" class="note" role="status" aria-live="polite"></div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
