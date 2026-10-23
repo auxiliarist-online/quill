@@ -12,8 +12,8 @@ function lines(text: string): string[] {
 }
 
 /** A file name from the poem's title, safe on any file system. */
-export function fileName(text: string, ext: 'txt' | 'docx'): string {
-  const base = titleOf(text)
+export function fileName(text: string, ext: 'txt' | 'docx', title?: string): string {
+  const base = titleOf(text, title)
     .replace(/[\\/:*?"<>|\u0000-\u001f]/g, '')
     .replace(/\s+/g, ' ')
     .replace(/[. ]+$/, '')
@@ -26,7 +26,7 @@ export function toText(text: string): Blob {
 }
 
 /** The .docx library is large, so it's loaded only when someone exports. */
-export async function toDocx(text: string): Promise<Blob> {
+export async function toDocx(text: string, title?: string): Promise<Blob> {
   const { Document, Packer, Paragraph, Tab, TextRun } = await import('docx')
   const paragraphs = lines(text).map(
     (line) =>
@@ -42,7 +42,7 @@ export async function toDocx(text: string): Promise<Blob> {
       }),
   )
   const doc = new Document({
-    title: titleOf(text),
+    title: titleOf(text, title),
     creator: 'Quill',
     sections: [{ children: paragraphs }],
   })

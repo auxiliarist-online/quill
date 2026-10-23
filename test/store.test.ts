@@ -37,4 +37,17 @@ describe('titleOf', () => {
     expect(titleOf('\n   \n  Ode to Rain  \nsecond')).toBe('Ode to Rain')
     expect(titleOf('')).toBe('Untitled')
   })
+
+  it('is the name the writer gave it, when there is one', () => {
+    expect(titleOf('Ode to Rain\nsecond', '  Rain, Again ')).toBe('Rain, Again')
+    // A blank name falls back to the first line.
+    expect(titleOf('Ode to Rain', '   ')).toBe('Ode to Rain')
+  })
+
+  it('keeps a poem’s name', async () => {
+    const store = fresh()
+    const poem = { ...newPoem(), text: 'first line', title: 'Named' }
+    await store.save(poem)
+    expect((await store.get(poem.id))?.title).toBe('Named')
+  })
 })

@@ -7,6 +7,8 @@ export interface Poem {
   text: string
   created: number
   updated: number
+  /** A name the writer gave it; without one, the first line is the title. */
+  title?: string
 }
 
 export interface Settings {
@@ -60,8 +62,10 @@ export function newPoem(now = Date.now()): Poem {
   return { id: crypto.randomUUID(), text: '', created: now, updated: now }
 }
 
-/** A poem's title is its first line with words in it. */
-export function titleOf(text: string): string {
+/** A poem's title: the name the writer gave it, else its first line with
+ *  words in it. */
+export function titleOf(text: string, title?: string): string {
+  if (title?.trim()) return title.trim().slice(0, 80)
   const line = text.split('\n').find((l) => l.trim())
   return line ? line.trim().slice(0, 80) : 'Untitled'
 }

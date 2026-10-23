@@ -122,7 +122,7 @@ async function renderPoems(): Promise<void> {
       const openBtn = document.createElement('button')
       openBtn.type = 'button'
       openBtn.className = 'open'
-      openBtn.textContent = titleOf(p.text)
+      openBtn.textContent = titleOf(p.text, p.title)
       openBtn.addEventListener('click', async () => {
         await open(p)
         hideMenu()
@@ -136,9 +136,9 @@ async function renderPoems(): Promise<void> {
       remove.type = 'button'
       remove.className = 'remove'
       remove.textContent = '×'
-      remove.setAttribute('aria-label', `Delete “${titleOf(p.text)}”`)
+      remove.setAttribute('aria-label', `Delete “${titleOf(p.text, p.title)}”`)
       remove.addEventListener('click', async () => {
-        if (!confirm(`Delete “${titleOf(p.text)}”? This can't be undone.`)) return
+        if (!confirm(`Delete “${titleOf(p.text, p.title)}”? This can't be undone.`)) return
         await store.delete(p.id)
         if (p.id === poem.id) {
           saveTimer = undefined
@@ -194,6 +194,18 @@ function renderMenu(): void {
 
 // --- Actions -------------------------------------------------------------------
 
+/** Name the current poem; an empty name goes back to its first line. */
+async function rename(): Promise<void> {
+  const next = prompt('Name this poem', titleOf(poem.text, poem.title))
+  if (next === null) return
+  const title = next.trim()
+  // The first line already is the title: no need to keep it twice.
+  poem.title = title && title !== titleOf(poem.text) ? title : undefined
+  await store.save(poem)
+  await renderPoems()
+  say(poem.title ? `Renamed “${poem.title}”` : 'Named by its first line')
+}
+
 function say(message: string): void {
   note.textContent = message
   note.classList.add('show')
@@ -213,11 +225,11 @@ function download(blob: Blob, name: string): void {
 /** The share sheet, where Proton Drive is a target. Chrome only shares some
  *  file types (not .docx), so this sends plain text, which Proton Docs opens. */
 async function share(): Promise<void> {
-  const name = fileName(poem.text, 'txt')
+  const name = fileName(poem.text, 'txt', poem.title)
   const file = new File([toText(poem.text)], name, { type: 'text/plain' })
   if (navigator.canShare?.({ files: [file] })) {
     try {
-      await navigator.share({ files: [file], title: titleOf(poem.text) })
+      await navigator.share({ files: [file], title: titleOf(poem.text, poem.title) })
     } catch (e) {
       if ((e as DOMException).name !== 'AbortError') say("Couldn't share the poem.")
     }
@@ -228,8 +240,8 @@ async function share(): Promise<void> {
 }
 
 async function saveDocx(): Promise<void> {
-  const name = fileName(poem.text, 'docx')
-  download(new Blob([await toDocx(poem.text)], { type: DOCX_TYPE }), name)
+  const name = fileName(poem.text, 'docx', poem.title)
+  download(new Blob([await toDocx(poem.text, poem.title)], { type: DOCX_TYPE }), name)
   say(`Saved ${name} to Downloads`)
 }
 
@@ -240,6 +252,10 @@ menu.addEventListener('click', async (e) => {
     await open(newPoem())
     hideMenu()
     page.focus()
+    return
+  }
+  if (action === 'rename') {
+    await rename()
     return
   }
   await flush()

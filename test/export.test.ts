@@ -51,6 +51,10 @@ describe('fileName', () => {
     expect(fileName('What? / Why: "now"...', 'txt')).toBe('What Why now.txt')
   })
 
+  it('uses the name the writer gave the poem', () => {
+    expect(fileName(POEM, 'txt', 'Evening: River')).toBe('Evening River.txt')
+  })
+
   it('falls back to Untitled', () => {
     expect(fileName('\n  \n', 'txt')).toBe('Untitled.txt')
   })
